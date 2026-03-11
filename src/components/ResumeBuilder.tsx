@@ -1,0 +1,511 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ResumeData, TemplateType, JobField } from '../types';
+import { 
+  User, Mail, Phone, Linkedin, MapPin, 
+  Plus, Trash2, Sparkles, ChevronLeft, ChevronRight, 
+  Download, Save, GraduationCap, Briefcase, Code, Trophy
+} from 'lucide-react';
+import { ProfessionalTemplate, ModernTemplate, DeveloperTemplate, CreativeTemplate } from './Templates';
+import { improveDescription, generateResumeSummary } from '../services/geminiService';
+
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
+
+interface ResumeBuilderProps {
+  template: TemplateType;
+  field: JobField;
+  onBack: () => void;
+}
+
+const initialData: ResumeData = {
+  personalInfo: {
+    fullName: '',
+    email: '',
+    phone: '',
+    linkedin: '',
+    location: '',
+    summary: '',
+  },
+  skills: [],
+  education: [],
+  experience: [],
+  projects: [],
+  achievements: [],
+};
+
+export const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, field, onBack }) => {
+  const [data, setData] = useState<ResumeData>(() => {
+    const saved = localStorage.getItem('resume_data');
+    return saved ? JSON.parse(saved) : initialData;
+  });
+  const [activeSection, setActiveSection] = useState(0);
+  const [isImproving, setIsImproving] = useState<string | null>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('resume_data', JSON.stringify(data));
+  }, [data]);
+
+  const updatePersonalInfo = (key: keyof ResumeData['personalInfo'], value: string) => {
+    setData(prev => ({
+      ...prev,
+      personalInfo: { ...prev.personalInfo, [key]: value }
+    }));
+  };
+
+  const addSkill = (skill: string) => {
+    if (skill && !data.skills.includes(skill)) {
+      setData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
+    }
+  };
+
+  const removeSkill = (index: number) => {
+    setData(prev => ({ ...prev, skills: prev.skills.filter((_, i) => i !== index) }));
+  };
+
+  const addItem = (key: 'education' | 'experience' | 'projects') => {
+    const items = {
+      education: { school: '', degree: '', year: '', location: '' },
+      experience: { company: '', position: '', duration: '', description: '' },
+      projects: { name: '', description: '', link: '' }
+    };
+    setData(prev => ({ ...prev, [key]: [...prev[key], items[key]] }));
+  };
+
+  const updateItem = (key: 'education' | 'experience' | 'projects', index: number, field: string, value: string) => {
+    setData(prev => {
+      const newList = [...prev[key]];
+      newList[index] = { ...newList[index], [field]: value };
+      return { ...prev, [key]: newList };
+    });
+  };
+
+  const removeItem = (key: 'education' | 'experience' | 'projects', index: number) => {
+    setData(prev => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }));
+  };
+
+  const handleImproveDescription = async (index: number) => {
+    const currentText = data.experience[index].description;
+    if (!currentText) return;
+    
+    setIsImproving(`exp-${index}`);
+    const improved = await improveDescription(currentText, field);
+    updateItem('experience', index, 'description', improved);
+    setIsImproving(null);
+  };
+
+  const handleGenerateSummary = async () => {
+    setIsGeneratingSummary(true);
+    const summary = await generateResumeSummary(data);
+    updatePersonalInfo('summary', summary);
+    setIsGeneratingSummary(false);
+  };
+
+  const downloadPDF = () => {
+    const element = document.getElementById('resume-preview');
+    const opt = {
+      margin: 0,
+      filename: `${data.personalInfo.fullName || 'Resume'}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+    html2pdf().set(opt).from(element).save();
+  };
+
+  const sections = [
+    { title: 'Personal Info', icon: <User className="w-5 h-5" /> },
+    { title: 'Skills', icon: <Code className="w-5 h-5" /> },
+    { title: 'Experience', icon: <Briefcase className="w-5 h-5" /> },
+    { title: 'Education', icon: <GraduationCap className="w-5 h-5" /> },
+    { title: 'Projects', icon: <Trophy className="w-5 h-5" /> }
+  ];
+
+  const renderTemplate = () => {
+    switch (template) {
+      case 'professional': return <ProfessionalTemplate data={data} />;
+      case 'modern': return <ModernTemplate data={data} />;
+      case 'developer': return <DeveloperTemplate data={data} />;
+      case 'creative': return <CreativeTemplate data={data} />;
+      default: return <ProfessionalTemplate data={data} />;
+    }
+  };
+
+  // Calculate progress
+  const totalFields = 10; // Simplified
+  const filledFields = [
+    data.personalInfo.fullName,
+    data.personalInfo.email,
+    data.skills.length > 0,
+    data.experience.length > 0,
+    data.education.length > 0
+  ].filter(Boolean).length;
+  const progress = (filledFields / 5) * 100;
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      {/* Left Sidebar - Editor */}
+      <div className="w-full md:w-1/2 h-screen overflow-y-auto p-6 md:p-10 border-r border-slate-200 bg-white">
+        <div className="flex items-center justify-between mb-8">
+          <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors">
+            <ChevronLeft className="w-4 h-4" />
+            Back to Templates
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Progress</div>
+              <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  className="h-full bg-blue-600"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-10 overflow-x-auto pb-2 no-scrollbar">
+          {sections.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveSection(i)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+                activeSection === i 
+                ? 'bg-slate-900 text-white shadow-lg' 
+                : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+              }`}
+            >
+              {s.icon}
+              {s.title}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeSection}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-8"
+          >
+            {activeSection === 0 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Full Name</label>
+                    <input 
+                      type="text" 
+                      value={data.personalInfo.fullName}
+                      onChange={e => updatePersonalInfo('fullName', e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Email</label>
+                    <input 
+                      type="email" 
+                      value={data.personalInfo.email}
+                      onChange={e => updatePersonalInfo('email', e.target.value)}
+                      placeholder="john@example.com"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Phone</label>
+                    <input 
+                      type="text" 
+                      value={data.personalInfo.phone}
+                      onChange={e => updatePersonalInfo('phone', e.target.value)}
+                      placeholder="+1 234 567 890"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Location</label>
+                    <input 
+                      type="text" 
+                      value={data.personalInfo.location}
+                      onChange={e => updatePersonalInfo('location', e.target.value)}
+                      placeholder="New York, NY"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">LinkedIn</label>
+                  <input 
+                    type="text" 
+                    value={data.personalInfo.linkedin}
+                    onChange={e => updatePersonalInfo('linkedin', e.target.value)}
+                    placeholder="linkedin.com/in/johndoe"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Professional Summary</label>
+                    <button 
+                      onClick={handleGenerateSummary}
+                      disabled={isGeneratingSummary}
+                      className="text-[10px] font-bold uppercase tracking-widest text-blue-600 flex items-center gap-1 hover:text-blue-700 disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      {isGeneratingSummary ? 'Generating...' : 'AI Generate'}
+                    </button>
+                  </div>
+                  <textarea 
+                    value={data.personalInfo.summary}
+                    onChange={e => updatePersonalInfo('summary', e.target.value)}
+                    placeholder="Briefly describe your professional background..."
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeSection === 1 && (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Add Skills</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="e.g. React, Python, Project Management"
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          addSkill(e.currentTarget.value);
+                          e.currentTarget.value = '';
+                        }
+                      }}
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                    <button className="bg-slate-900 text-white px-4 rounded-xl">
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {data.skills.map((skill, i) => (
+                    <span key={i} className="bg-slate-100 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 group">
+                      {skill}
+                      <button onClick={() => removeSkill(i)} className="text-slate-400 hover:text-red-500">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeSection === 2 && (
+              <div className="space-y-8">
+                {data.experience.map((exp, i) => (
+                  <div key={i} className="p-6 bg-slate-50 rounded-2xl space-y-4 relative group">
+                    <button 
+                      onClick={() => removeItem('experience', i)}
+                      className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Company</label>
+                        <input 
+                          type="text" 
+                          value={exp.company}
+                          onChange={e => updateItem('experience', i, 'company', e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Position</label>
+                        <input 
+                          type="text" 
+                          value={exp.position}
+                          onChange={e => updateItem('experience', i, 'position', e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Duration</label>
+                      <input 
+                        type="text" 
+                        value={exp.duration}
+                        onChange={e => updateItem('experience', i, 'duration', e.target.value)}
+                        placeholder="Jan 2020 - Present"
+                        className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Description</label>
+                        <button 
+                          onClick={() => handleImproveDescription(i)}
+                          disabled={isImproving === `exp-${i}`}
+                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 flex items-center gap-1 hover:text-blue-700 disabled:opacity-50"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          {isImproving === `exp-${i}` ? 'Improving...' : 'AI Improve'}
+                        </button>
+                      </div>
+                      <textarea 
+                        value={exp.description}
+                        onChange={e => updateItem('experience', i, 'description', e.target.value)}
+                        rows={4}
+                        className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addItem('experience')}
+                  className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-blue-500 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Experience
+                </button>
+              </div>
+            )}
+
+            {activeSection === 3 && (
+              <div className="space-y-8">
+                {data.education.map((edu, i) => (
+                  <div key={i} className="p-6 bg-slate-50 rounded-2xl space-y-4 relative group">
+                    <button 
+                      onClick={() => removeItem('education', i)}
+                      className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">School / University</label>
+                      <input 
+                        type="text" 
+                        value={edu.school}
+                        onChange={e => updateItem('education', i, 'school', e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Degree</label>
+                        <input 
+                          type="text" 
+                          value={edu.degree}
+                          onChange={e => updateItem('education', i, 'degree', e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Year</label>
+                        <input 
+                          type="text" 
+                          value={edu.year}
+                          onChange={e => updateItem('education', i, 'year', e.target.value)}
+                          className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addItem('education')}
+                  className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-blue-500 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Education
+                </button>
+              </div>
+            )}
+
+            {activeSection === 4 && (
+              <div className="space-y-8">
+                {data.projects.map((proj, i) => (
+                  <div key={i} className="p-6 bg-slate-50 rounded-2xl space-y-4 relative group">
+                    <button 
+                      onClick={() => removeItem('projects', i)}
+                      className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Project Name</label>
+                      <input 
+                        type="text" 
+                        value={proj.name}
+                        onChange={e => updateItem('projects', i, 'name', e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Description</label>
+                      <textarea 
+                        value={proj.description}
+                        onChange={e => updateItem('projects', i, 'description', e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-2 rounded-lg bg-white border-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addItem('projects')}
+                  className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-blue-500 hover:text-blue-500 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Project
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="mt-12 flex gap-4">
+          <button 
+            onClick={() => setActiveSection(prev => Math.max(0, prev - 1))}
+            className="flex-1 py-4 bg-slate-100 text-slate-900 rounded-2xl font-bold hover:bg-slate-200 transition-colors"
+          >
+            Previous
+          </button>
+          <button 
+            onClick={() => setActiveSection(prev => Math.min(sections.length - 1, prev + 1))}
+            className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-colors"
+          >
+            Next Section
+          </button>
+        </div>
+      </div>
+
+      {/* Right Sidebar - Preview */}
+      <div className="w-full md:w-1/2 h-screen bg-slate-100 overflow-y-auto p-6 md:p-10 flex flex-col">
+        <div className="flex justify-between items-center mb-6 no-print">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Live Preview</h3>
+          <button 
+            onClick={downloadPDF}
+            className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+          >
+            <Download className="w-4 h-4" />
+            Download PDF
+          </button>
+        </div>
+        
+        <div className="flex-1 flex items-start justify-center">
+          <div 
+            id="resume-preview" 
+            className="resume-preview-container shadow-2xl scale-[0.4] sm:scale-[0.6] md:scale-[0.7] lg:scale-[0.8] xl:scale-[0.9]"
+          >
+            {renderTemplate()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
