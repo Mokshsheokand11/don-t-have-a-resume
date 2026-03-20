@@ -33,7 +33,7 @@ export const improveDescription = async (text: string, field: string) => {
     });
     return response.text;
   } catch (error) {
-    console.error("Error improving description:", error);
+    console.error("Error improving The description:", error);
     return text;
   }
 };
