@@ -1,3 +1,12 @@
+export type SectionType = 'summary' | 'skills' | 'experience' | 'education' | 'projects';
+
+export interface ResumeTheme {
+  primaryColor: string;
+  fontFamily: 'serif' | 'sans' | 'mono';
+  spacing: 'compact' | 'normal' | 'spacious';
+  sectionOrder: SectionType[];
+}
+
 export interface ResumeData {
   personalInfo: {
     fullName: string;
@@ -12,6 +21,7 @@ export interface ResumeData {
   experience: Experience[];
   projects: Project[];
   achievements: string[];
+  theme?: ResumeTheme;
 }
 
 export interface Education {
