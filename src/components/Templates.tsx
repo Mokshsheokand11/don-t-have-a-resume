@@ -357,3 +357,264 @@ export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     </div>
   );
 };
+
+export const ElegantTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const theme = getTheme(data);
+  const spacingClass = getSpacingClass(theme.spacing);
+
+  const sections: Record<SectionType, React.ReactNode> = {
+    summary: data.personalInfo.summary ? (
+      <section className={spacingClass}>
+        <h2 className="text-xs font-bold uppercase tracking-[0.2em] mb-4 text-center" style={{ color: theme.primaryColor }}>About Me</h2>
+        <p className="text-sm leading-relaxed text-center italic max-w-2xl mx-auto">{data.personalInfo.summary}</p>
+      </section>
+    ) : null,
+    experience: data.experience.length > 0 ? (
+      <section className={spacingClass}>
+        <h2 className="text-xs font-bold uppercase tracking-[0.2em] mb-6 border-b pb-2 flex items-center gap-4">
+          <span className="flex-1 h-[1px] bg-slate-200"></span>
+          Experience
+          <span className="flex-1 h-[1px] bg-slate-200"></span>
+        </h2>
+        <div className="space-y-8">
+          {data.experience.map((exp, i) => (
+            <div key={i}>
+              <div className="flex justify-between items-baseline mb-1">
+                <h3 className="text-lg font-serif italic text-slate-900">{exp.position}</h3>
+                <span className="text-xs uppercase tracking-widest text-slate-400">{exp.duration}</span>
+              </div>
+              <div className="text-sm font-bold mb-3 uppercase tracking-wider" style={{ color: theme.primaryColor }}>{exp.company}</div>
+              <p className="text-sm leading-relaxed text-slate-600 font-serif">{exp.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    ) : null,
+    education: data.education.length > 0 ? (
+      <section className={spacingClass}>
+        <h2 className="text-xs font-bold uppercase tracking-[0.2em] mb-4 border-b pb-2">Education</h2>
+        {data.education.map((edu, i) => (
+          <div key={i} className="mb-4">
+            <div className="flex justify-between items-baseline">
+              <div className="font-serif italic text-lg">{edu.degree}</div>
+              <div className="text-xs text-slate-400 uppercase tracking-widest">{edu.year}</div>
+            </div>
+            <div className="text-sm font-bold uppercase tracking-wider opacity-60">{edu.school}</div>
+          </div>
+        ))}
+      </section>
+    ) : null,
+    skills: data.skills.length > 0 ? (
+      <section className={spacingClass}>
+        <h2 className="text-xs font-bold uppercase tracking-[0.2em] mb-4 border-b pb-2">Expertise</h2>
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-2">
+          {data.skills.map((s, i) => (
+            <span key={i} className="text-sm font-serif italic">{s}</span>
+          ))}
+        </div>
+      </section>
+    ) : null,
+    projects: data.projects.length > 0 ? (
+      <section className={spacingClass}>
+        <h2 className="text-xs font-bold uppercase tracking-[0.2em] mb-4 border-b pb-2">Notable Projects</h2>
+        <div className="grid grid-cols-2 gap-6">
+          {data.projects.map((proj, i) => (
+            <div key={i}>
+              <div className="font-serif italic text-slate-900 border-l-2 pl-3 mb-1" style={{ borderColor: theme.primaryColor }}>{proj.name}</div>
+              <p className="text-xs text-slate-500 leading-relaxed font-serif">{proj.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    ) : null
+  };
+
+  return (
+    <div className={`p-10 ${getFontClass('serif')} text-slate-800 min-h-[297mm]`}>
+      <header className="mb-12 text-center">
+        <h1 className="text-4xl font-serif italic mb-4 tracking-tight" style={{ color: theme.primaryColor }}>
+          {data.personalInfo.fullName || 'Your Name'}
+        </h1>
+        <div className="flex justify-center gap-8 text-[10px] uppercase tracking-[0.3em] font-bold text-slate-400">
+          <span>{data.personalInfo.email}</span>
+          <span>{data.personalInfo.phone}</span>
+          <span>{data.personalInfo.location}</span>
+        </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto">
+        {theme.sectionOrder.map(id => (
+          <React.Fragment key={id}>{sections[id]}</React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const theme = getTheme(data);
+  const spacingClass = getSpacingClass(theme.spacing);
+
+  return (
+    <div className={`p-16 ${getFontClass('sans')} text-slate-700 bg-white min-h-[297mm]`}>
+      <header className="mb-16">
+        <h1 className="text-3xl font-light tracking-tight mb-2 text-slate-900">
+          {data.personalInfo.fullName || 'Your Name'}
+        </h1>
+        <p className="text-sm opacity-50 font-medium">
+          {data.personalInfo.email} &bull; {data.personalInfo.phone} &bull; {data.personalInfo.location}
+        </p>
+      </header>
+
+      <div className="space-y-12">
+        {theme.sectionOrder.map(id => {
+          if (id === 'summary' && data.personalInfo.summary) {
+            return (
+              <section key={id}>
+                <p className="text-sm leading-relaxed max-w-xl">{data.personalInfo.summary}</p>
+              </section>
+            );
+          }
+          if (id === 'experience' && data.experience.length > 0) {
+            return (
+              <section key={id}>
+                <div className="space-y-8">
+                  {data.experience.map((exp, i) => (
+                    <div key={i} className="flex gap-8">
+                      <div className="w-32 flex-shrink-0 text-[10px] font-bold uppercase tracking-widest text-slate-400 pt-1">
+                        {exp.duration}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-slate-900 text-sm">{exp.position}</h3>
+                        <div className="text-sm opacity-60 mb-2">{exp.company}</div>
+                        <p className="text-sm leading-relaxed whitespace-pre-line">{exp.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          if (id === 'skills' && data.skills.length > 0) {
+            return (
+              <section key={id} className="flex gap-8 border-t border-slate-50 pt-8">
+                <div className="w-32 flex-shrink-0 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Skills
+                </div>
+                <div className="flex-1 text-sm flex flex-wrap gap-x-6 gap-y-2">
+                  {data.skills.map((s, i) => (
+                    <span key={i}>{s}</span>
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          if (id === 'education' && data.education.length > 0) {
+            return (
+              <section key={id} className="flex gap-8 border-t border-slate-50 pt-8">
+                <div className="w-32 flex-shrink-0 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Education
+                </div>
+                <div className="flex-1 space-y-4">
+                  {data.education.map((edu, i) => (
+                    <div key={i}>
+                      <div className="text-sm font-bold">{edu.degree}</div>
+                      <div className="text-sm opacity-60">{edu.school}, {edu.year}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          return null;
+        })}
+      </div>
+    </div>
+  );
+};
+
+export const ClassicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const theme = getTheme(data);
+  const spacingClass = getSpacingClass(theme.spacing);
+
+  const sections: Record<SectionType, React.ReactNode> = {
+    summary: data.personalInfo.summary ? (
+      <section className="mb-4">
+        <h2 className="text-sm font-bold uppercase border-b border-black mb-1">Objective</h2>
+        <p className="text-[13px] leading-tight">{data.personalInfo.summary}</p>
+      </section>
+    ) : null,
+    experience: data.experience.length > 0 ? (
+      <section className="mb-4">
+        <h2 className="text-sm font-bold uppercase border-b border-black mb-2">Professional Experience</h2>
+        {data.experience.map((exp, i) => (
+          <div key={i} className="mb-3">
+            <div className="flex justify-between font-bold text-[13px]">
+              <span>{exp.company}</span>
+              <span>{exp.duration}</span>
+            </div>
+            <div className="flex justify-between italic text-[13px] mb-1">
+              <span>{exp.position}</span>
+            </div>
+            <p className="text-[13px] leading-tight whitespace-pre-line pl-2 border-l border-slate-200 ml-1">{exp.description}</p>
+          </div>
+        ))}
+      </section>
+    ) : null,
+    education: data.education.length > 0 ? (
+      <section className="mb-4">
+        <h2 className="text-sm font-bold uppercase border-b border-black mb-2">Education</h2>
+        {data.education.map((edu, i) => (
+          <div key={i} className="mb-2">
+            <div className="flex justify-between font-bold text-[13px]">
+              <span>{edu.school}</span>
+              <span>{edu.year}</span>
+            </div>
+            <div className="text-[13px]">{edu.degree} | {edu.location}</div>
+          </div>
+        ))}
+      </section>
+    ) : null,
+    skills: data.skills.length > 0 ? (
+      <section className="mb-4">
+        <h2 className="text-sm font-bold uppercase border-b border-black mb-1">Skills</h2>
+        <p className="text-[13px]"><strong>Technical:</strong> {data.skills.join(', ')}</p>
+      </section>
+    ) : null,
+    projects: data.projects.length > 0 ? (
+      <section className="mb-4">
+        <h2 className="text-sm font-bold uppercase border-b border-black mb-2">Projects</h2>
+        {data.projects.map((proj, i) => (
+          <div key={i} className="mb-2 text-[13px]">
+            <span className="font-bold">{proj.name}</span> &mdash; {proj.description}
+          </div>
+        ))}
+      </section>
+    ) : null
+  };
+
+  return (
+    <div className={`p-12 ${getFontClass('serif')} text-black min-h-[297mm] leading-normal`}>
+      <header className="mb-6 text-center">
+        <h1 className="text-2xl font-bold uppercase mb-1">{data.personalInfo.fullName || 'Your Name'}</h1>
+        <div className="text-[13px] space-x-1">
+          <span>{data.personalInfo.location}</span>
+          <span>|</span>
+          <span>{data.personalInfo.phone}</span>
+          <span>|</span>
+          <span>{data.personalInfo.email}</span>
+          {data.personalInfo.linkedin && (
+            <>
+              <span>|</span>
+              <span>{data.personalInfo.linkedin}</span>
+            </>
+          )}
+        </div>
+      </header>
+
+      {theme.sectionOrder.map(id => (
+        <React.Fragment key={id}>{sections[id]}</React.Fragment>
+      ))}
+    </div>
+  );
+};

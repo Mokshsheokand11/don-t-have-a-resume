@@ -23,7 +23,10 @@ const templates: { id: TemplateType; name: string; desc: string; color: string }
   { id: 'professional', name: 'Professional', desc: 'Classic, clean, and reliable.', color: 'bg-slate-800' },
   { id: 'modern', name: 'Modern', desc: 'Sleek two-column layout.', color: 'bg-blue-600' },
   { id: 'developer', name: 'Developer', desc: 'Monospaced, tech-focused.', color: 'bg-emerald-600' },
-  { id: 'creative', name: 'Creative', desc: 'Bold, vibrant, and unique.', color: 'bg-purple-600' }
+  { id: 'creative', name: 'Creative', desc: 'Bold, vibrant, and unique.', color: 'bg-purple-600' },
+  { id: 'elegant', name: 'Elegant', desc: 'Refined, serif, high-end feel.', color: 'bg-rose-600' },
+  { id: 'minimalist', name: 'Minimalist', desc: 'Clean, distraction-free design.', color: 'bg-slate-400' },
+  { id: 'classic', name: 'Classic', desc: 'Traditional Harvard style.', color: 'bg-amber-700' }
 ];
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({ 

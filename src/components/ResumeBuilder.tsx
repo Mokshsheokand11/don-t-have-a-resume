@@ -7,7 +7,7 @@ import {
   Download, Save, GraduationCap, Briefcase, Code, Trophy,
   Palette, Layout, Type, ArrowUp, ArrowDown, Moon, Sun, RotateCcw
 } from 'lucide-react';
-import { ProfessionalTemplate, ModernTemplate, DeveloperTemplate, CreativeTemplate } from './Templates';
+import { ProfessionalTemplate, ModernTemplate, DeveloperTemplate, CreativeTemplate, ElegantTemplate, MinimalistTemplate, ClassicTemplate } from './Templates';
 import { improveDescription, generateResumeSummary } from '../services/geminiService';
 
 // @ts-ignore
@@ -172,6 +172,9 @@ export const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, field, o
       case 'modern': return <ModernTemplate data={data} />;
       case 'developer': return <DeveloperTemplate data={data} />;
       case 'creative': return <CreativeTemplate data={data} />;
+      case 'elegant': return <ElegantTemplate data={data} />;
+      case 'minimalist': return <MinimalistTemplate data={data} />;
+      case 'classic': return <ClassicTemplate data={data} />;
       default: return <ProfessionalTemplate data={data} />;
     }
   };

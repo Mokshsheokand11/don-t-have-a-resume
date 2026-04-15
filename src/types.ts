@@ -44,5 +44,5 @@ export interface Project {
   link: string;
 }
 
-export type TemplateType = 'professional' | 'modern' | 'developer' | 'creative';
+export type TemplateType = 'professional' | 'modern' | 'developer' | 'creative' | 'elegant' | 'minimalist' | 'classic';
 export type JobField = 'Software Developer' | 'Data Analyst' | 'Marketing' | 'Graphic Designer' | 'Finance' | 'HR' | 'Student / Fresher';
