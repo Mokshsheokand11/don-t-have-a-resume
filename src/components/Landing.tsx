@@ -12,7 +12,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
       {/* Hero Section */}
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -22,7 +22,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
               Don't Have a <span className="text-blue-600">Resume?</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Create a professional, ATS-friendly resume in minutes using AI. No design skills required.
+              Create a professional, ATS-friendly resume in minutes using AI.
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -34,7 +34,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
             </motion.button>
           </motion.div>
         </div>
-        
+
         {/* Background Decoration */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-0 opacity-5 pointer-events-none">
           <div className="absolute top-20 left-10 w-64 h-64 bg-blue-400 rounded-full blur-3xl"></div>
@@ -54,7 +54,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
               { icon: <Sparkles className="w-8 h-8 text-purple-600" />, title: "Answer AI questions", desc: "Our AI helps you craft the perfect descriptions." },
               { icon: <Download className="w-8 h-8 text-emerald-600" />, title: "Download PDF", desc: "Get your resume ready for applications instantly." }
             ].map((step, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
