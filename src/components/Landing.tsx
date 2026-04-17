@@ -22,7 +22,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
               Don't Have a <span className="text-blue-600">Resume?</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Create a professional, ATS-friendly resume in minutes using AI.
+              Create a professional, ATS-friendly resume.
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
