@@ -46,7 +46,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
+            <h2 className="text-3xl font-black text-slate-900">How it works</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
             {[
@@ -66,7 +66,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
                   {step.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-slate-500">{step.desc}</p>
+                <p className="text-slate-600 font-medium">{step.desc}</p>
               </motion.div>
             ))}
           </div>
