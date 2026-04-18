@@ -76,11 +76,9 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
       {/* Template Preview */}
       <section className="py-24">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-            <div>
-              <h2 className="text-4xl font-bold text-slate-900 mb-4">Professional Templates</h2>
-              <p className="text-slate-500">Designed to pass ATS and impress recruiters.</p>
-            </div>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">Professional Templates</h2>
+            <p className="text-slate-500">Designed to pass ATS and impress recruiters.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {['Professional', 'Modern', 'Developer', 'Creative', 'Elegant'].map((name, i) => (
@@ -96,7 +94,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
                     </div>
                   </div>
                 </div>
-                <h4 className="font-bold text-slate-900">{name}</h4>
+                <h4 className="font-bold text-slate-900 text-center">{name}</h4>
               </div>
             ))}
           </div>
