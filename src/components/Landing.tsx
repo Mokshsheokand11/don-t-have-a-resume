@@ -58,9 +58,10 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -12, shadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center"
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center cursor-pointer transition-shadow hover:shadow-2xl"
               >
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   {step.icon}
@@ -83,7 +84,7 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {['Professional', 'Modern', 'Developer', 'Creative', 'Elegant'].map((name, i) => (
               <div key={i} className="group cursor-pointer">
-                <div className="aspect-[3/4] bg-slate-100 rounded-2xl mb-4 overflow-hidden border border-slate-200 transition-all group-hover:shadow-xl group-hover:-translate-y-1">
+                <div className="aspect-[3/4] bg-slate-100 rounded-2xl mb-4 overflow-hidden border border-slate-200 transition-all duration-500 group-hover:shadow-[0_30px_60px_-15px_rgba(37,99,235,0.15)] group-hover:-translate-y-4">
                   <div className="w-full h-full bg-white p-4">
                     <div className="w-full h-4 bg-slate-100 rounded mb-2"></div>
                     <div className="w-2/3 h-2 bg-slate-50 rounded mb-4"></div>
