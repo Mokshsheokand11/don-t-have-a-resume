@@ -82,8 +82,8 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
               <p className="text-slate-500">Designed to pass ATS and impress recruiters.</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['Professional', 'Modern', 'Developer', 'Creative'].map((name, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            {['Professional', 'Modern', 'Developer', 'Creative', 'Elegant'].map((name, i) => (
               <div key={i} className="group cursor-pointer">
                 <div className="aspect-[3/4] bg-slate-100 rounded-2xl mb-4 overflow-hidden border border-slate-200 transition-all group-hover:shadow-xl group-hover:-translate-y-1">
                   <div className="w-full h-full bg-white p-4">
